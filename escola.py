@@ -29,6 +29,44 @@ def show_team_card(selected_team):
     st.sidebar.subheader(f'Média de Pontos de {selected_team}')
     st.sidebar.write(f'{selected_team}: {team_mean:.2f}')
 
+# Função para mostrar o gráfico de radar
+def show_radar_chart():
+    st.title('Gráfico de Radar e Média Aritmética')
+
+    # Dados para o gráfico de radar (exemplo)
+    data_radar = {
+        'Equipe': ['Cruzeiro', 'Santos', 'Corinthians', 'São Paulo', 'Flamengo'],
+        'Ataque': [80, 75, 78, 85, 88],
+        'Defesa': [70, 68, 72, 75, 80],
+        'Meio de Campo': [75, 72, 80, 78, 82],
+        'Técnica': [80, 75, 78, 82, 85],
+        'Físico': [70, 72, 75, 78, 80]
+    }
+
+    # Criar um DataFrame com os dados
+    radar_df = pd.DataFrame(data_radar)
+
+    # Selecionar uma equipe
+    selected_team = st.selectbox('Selecione uma equipe:', radar_df['Equipe'].unique())
+
+    # Filtrar o DataFrame para a equipe selecionada
+    team_data = radar_df[radar_df['Equipe'] == selected_team]
+
+    # Remover a coluna 'Equipe' para criar o gráfico de radar
+    team_data = team_data.drop('Equipe', axis=1)
+
+    # Gráfico de radar
+    fig = px.line_polar(
+        team_data,
+        r=team_data.values[0],
+        theta=team_data.columns,
+        line_close=True,
+        title=f'Gráfico de Radar para {selected_team}'
+    )
+
+    # Mostrar o gráfico de radar
+    st.plotly_chart(fig)
+
 # Barra lateral com menu suspenso para selecionar a página
 selected_page = st.sidebar.selectbox('Selecione a página:', ['Tabela', 'Gráfico de Barras', 'Gráfico de Linhas', 'Gráfico de Pizza', 'Gráfico de Dispersão', 'Gráfico de Barra Empilhada', 'Gráfico de Radar e Média Aritmética'])
 
