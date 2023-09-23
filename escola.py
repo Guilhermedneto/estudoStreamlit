@@ -23,15 +23,33 @@ def calculate_mean(selected_teams):
     overall_mean = df['Pontuação'].mean()
     return mean_value, overall_mean
 
-# Função para mostrar o card com a média da equipe selecionada
+# Função para calcular a média ponderada
+def calculate_weighted_mean(selected_teams):
+    selected_df = df[df['Campeão'].isin(selected_teams)]
+    weights = selected_df['Pontuação'] / selected_df['Pontuação'].sum()
+    weighted_mean = (selected_df['Pontuação'] * weights).sum()
+    return weighted_mean
+
+# Função para calcular o desvio padrão
+def calculate_standard_deviation(selected_teams):
+    selected_df = df[df['Campeão'].isin(selected_teams)]
+    std_deviation = selected_df['Pontuação'].std()
+    return std_deviation
+
+# Função para mostrar o card com as estatísticas da equipe selecionada
 def show_team_card(selected_team):
-    team_mean = df[df['Campeão'] == selected_team]['Pontuação'].mean()
-    st.sidebar.subheader(f'Média de Pontos de {selected_team}')
-    st.sidebar.write(f'{selected_team}: {team_mean:.2f}')
+    team_mean, overall_mean = calculate_mean([selected_team])
+    weighted_mean = calculate_weighted_mean([selected_team])
+    std_deviation = calculate_standard_deviation([selected_team])
+
+    st.sidebar.subheader(f'Estatísticas de {selected_team}')
+    st.sidebar.write(f'Média Aritmética: {team_mean:.2f}')
+    st.sidebar.write(f'Média Ponderada: {weighted_mean:.2f}')
+    st.sidebar.write(f'Desvio Padrão: {std_deviation:.2f}')
 
 # Função para mostrar o gráfico de radar
 def show_radar_chart():
-    st.title('Gráfico de Radar e Média Aritmética')
+    st.title('Gráfico de Radar com Média Aritmética, Média Ponderada e Desvio Padrão')
 
     # Dados para o gráfico de radar (exemplo)
     data_radar = {
@@ -55,13 +73,41 @@ def show_radar_chart():
     # Remover a coluna 'Equipe' para criar o gráfico de radar
     team_data = team_data.drop('Equipe', axis=1)
 
+    # Calcular as estatísticas da equipe selecionada
+    team_mean, overall_mean = calculate_mean([selected_team])
+    weighted_mean = calculate_weighted_mean([selected_team])
+    std_deviation = calculate_standard_deviation([selected_team])
+
     # Gráfico de radar
-    fig = px.line_polar(
-        team_data,
+    fig = go.Figure()
+
+    # Adicionar traço para a equipe selecionada
+    fig.add_trace(go.Scatterpolar(
         r=team_data.values[0],
         theta=team_data.columns,
-        line_close=True,
-        title=f'Gráfico de Radar para {selected_team}'
+        fill='toself',
+        name=selected_team,
+        text=f'Média Aritmética: {team_mean:.2f}, Média Ponderada: {weighted_mean:.2f}, Desvio Padrão: {std_deviation:.2f}'
+    ))
+
+    # Adicionar traço para a média geral
+    overall_mean_data = radar_df.mean()
+    fig.add_trace(go.Scatterpolar(
+        r=overall_mean_data.values,
+        theta=overall_mean_data.index,
+        fill='toself',
+        name='Média Geral',
+        text=f'Média Aritmética Geral: {overall_mean:.2f}'
+    ))
+
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100]
+            ),
+        ),
+        title=f'Gráfico de Radar para {selected_team} e Média Geral',
     )
 
     # Mostrar o gráfico de radar
