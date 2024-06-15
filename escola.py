@@ -18,7 +18,6 @@ data = {
 df = pd.DataFrame(data)
 
 
-# Função para calcular a média aritmética
 def calculate_mean(selected_teams):
     selected_df = df[df['Campeão'].isin(selected_teams)]
     mean_value = selected_df['Pontuação'].mean()
