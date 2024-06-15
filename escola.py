@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import statistics
 
 # Dados dos campeões brasileiros até 2022
 data = {
